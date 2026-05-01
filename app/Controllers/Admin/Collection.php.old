@@ -1,0 +1,81 @@
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Controllers\BaseController;
+
+class Collection extends BaseController
+{
+    public function index()
+    {
+        $db = \Config\Database::connect();
+
+        $type = $this->request->getGet('type') ?? 'day';
+
+        if ($type == 'month') {
+
+            $builder = $db->table('bills');
+            $builder->select("
+                DATE_FORMAT(created_at,'%Y-%m') as period,
+                SUM(room_charges) as room_charges,
+                SUM(doctor_fees) as doctor_fees,
+                SUM(medicine_charges) as medicine_charges,
+                SUM(test_charges) as test_charges,
+                SUM(surgery_charges) as surgery_charges,
+                SUM(anaesthesia_charges) as anaesthesia_charges,
+                SUM(ot_charges) as ot_charges,
+                SUM(nursing_charges) as nursing_charges,
+                SUM(assistance_charges) as assistance_charges,
+                SUM(other_charges) as other_charges,
+                SUM(net_amount) as total
+            ");
+            $builder->groupBy("DATE_FORMAT(created_at,'%Y-%m')");
+            $builder->orderBy("period", "DESC");
+
+        } elseif ($type == 'year') {
+
+            $builder = $db->table('bills');
+            $builder->select("
+                YEAR(created_at) as period,
+                SUM(room_charges) as room_charges,
+                SUM(doctor_fees) as doctor_fees,
+                SUM(medicine_charges) as medicine_charges,
+                SUM(test_charges) as test_charges,
+                SUM(surgery_charges) as surgery_charges,
+                SUM(anaesthesia_charges) as anaesthesia_charges,
+                SUM(ot_charges) as ot_charges,
+                SUM(nursing_charges) as nursing_charges,
+                SUM(assistance_charges) as assistance_charges,
+                SUM(other_charges) as other_charges,
+                SUM(net_amount) as total
+            ");
+            $builder->groupBy("YEAR(created_at)");
+            $builder->orderBy("period", "DESC");
+
+        } else {
+
+            $builder = $db->table('bills');
+            $builder->select("
+                DATE(created_at) as period,
+                SUM(room_charges) as room_charges,
+                SUM(doctor_fees) as doctor_fees,
+                SUM(medicine_charges) as medicine_charges,
+                SUM(test_charges) as test_charges,
+                SUM(surgery_charges) as surgery_charges,
+                SUM(anaesthesia_charges) as anaesthesia_charges,
+                SUM(ot_charges) as ot_charges,
+                SUM(nursing_charges) as nursing_charges,
+                SUM(assistance_charges) as assistance_charges,
+                SUM(other_charges) as other_charges,
+                SUM(net_amount) as total
+            ");
+            $builder->groupBy("DATE(created_at)");
+            $builder->orderBy("period", "DESC");
+        }
+
+        $data['rows'] = $builder->get()->getResultArray();
+        $data['type'] = $type;
+
+        return view('admin/collection/index', $data);
+    }
+}
