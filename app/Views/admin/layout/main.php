@@ -256,7 +256,9 @@
             <i class="bi bi-graph-up-arrow"></i> Expense Report
             </a>
 
-
+            		<a href="<?= base_url('admin/expense-report/category-month') ?>">
+                    <i class="bi bi-pie-chart"></i> Category Report
+                    </a>
 
 
 

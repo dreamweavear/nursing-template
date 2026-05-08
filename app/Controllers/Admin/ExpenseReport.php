@@ -93,4 +93,89 @@ public function excel()
                 ->findAll();
         }
     }
+
+public function categoryMonth()
+{
+    $month    = $this->request->getGet('month') ?? date('m');
+    $year     = $this->request->getGet('year') ?? date('Y');
+    $category = $this->request->getGet('category') ?? '';
+
+    $builder = $this->expenseModel
+        ->select("category, SUM(amount) as total")
+        ->where('MONTH(expense_date)', $month)
+        ->where('YEAR(expense_date)', $year);
+
+    if($category != ''){
+        $builder->where('category', $category);
+    }
+
+    $rows = $builder
+        ->groupBy('category')
+        ->findAll();
+
+    $categories = $this->expenseModel
+        ->select('category')
+        ->groupBy('category')
+        ->findAll();
+
+    return view('admin/expense_report/category_month',[
+        'rows'=>$rows,
+        'month'=>$month,
+        'year'=>$year,
+        'category'=>$category,
+        'categories'=>$categories
+    ]);
+}
+
+public function categoryMonthExcel()
+{
+    $month = $this->request->getGet('month') ?? date('m');
+    $year  = $this->request->getGet('year') ?? date('Y');
+
+    $rows = $this->expenseModel
+        ->select("category, SUM(amount) as total")
+        ->where('MONTH(expense_date)', $month)
+        ->where('YEAR(expense_date)', $year)
+        ->groupBy('category')
+        ->findAll();
+
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=category-report.xls");
+
+    echo view('admin/expense_report/category_excel', [
+        'rows'=>$rows,
+        'month'=>$month,
+        'year'=>$year
+    ]);
+    exit;
+}
+
+public function categoryMonthPdf()
+{
+    $month = $this->request->getGet('month') ?? date('m');
+    $year  = $this->request->getGet('year') ?? date('Y');
+
+    $rows = $this->expenseModel
+        ->select("category, SUM(amount) as total")
+        ->where('MONTH(expense_date)', $month)
+        ->where('YEAR(expense_date)', $year)
+        ->groupBy('category')
+        ->findAll();
+
+    $html = view('admin/expense_report/category_pdf', [
+        'rows'=>$rows,
+        'month'=>$month,
+        'year'=>$year
+    ]);
+
+    $dompdf = new \Dompdf\Dompdf();
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+    $dompdf->stream("category-report.pdf", ["Attachment"=>true]);
+}
+
+
+
+
 }

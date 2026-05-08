@@ -111,6 +111,10 @@ $routes->get('expense-report', 'Admin\ExpenseReport::index');
 $routes->get('expense-report', 'Admin\ExpenseReport::index');
 $routes->get('expense-report/excel', 'Admin\ExpenseReport::excel');
 $routes->get('expense-report/pdf', 'Admin\ExpenseReport::pdf');
+// category expense report
+$routes->get('expense-report/category-month', 'Admin\ExpenseReport::categoryMonth');
+$routes->get('expense-report/category-month-excel', 'Admin\ExpenseReport::categoryMonthExcel');
+$routes->get('expense-report/category-month-pdf', 'Admin\ExpenseReport::categoryMonthPdf');
 
 
 });
